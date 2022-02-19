@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# xmobar rebuild
+(cd $HOME/.config/xmobar; ./rebuild)
+
+# xmonad recompile
+xmonad --recompile
+
+exit $?

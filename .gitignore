@@ -21,3 +21,13 @@ cabal.project.local
 cabal.project.local~
 .HTF/
 .ghc.environment.*
+bin/
+xmonad.state
+
+# xmobar
+xmobar/xmobar-git/
+xmobar/xmobar
+
+# xmonad
+xmonad/xmonad/
+xmonad/xmonad-contrib/
