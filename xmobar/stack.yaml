@@ -4,6 +4,7 @@ resolver:
 packages:
 - .
 - xmobar-git
+- ../env
 
 flags:
   xmobar:

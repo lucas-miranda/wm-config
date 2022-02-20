@@ -2,6 +2,7 @@ import Control.Exception (fromException, try, bracket, bracket_, throw, finally,
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.Maybe
+import Env;
 import System.Environment
 import System.IO
 import System.Info
@@ -38,18 +39,6 @@ spawnPID :: MonadIO m => String -> m ProcessID
 spawnPID x = xfork $ executeFile "/bin/sh" False ["-c", x] Nothing
 
 --------------------------------------
--- Environment Variables
-
-retrieveEnv :: String -> IO String
-retrieveEnv name = do
-    e <- lookupEnv name
-    return $ fromMaybe "" e
-
--- home
-envHome :: IO String
-envHome = retrieveEnv "HOME"
-
---------------------------------------
 
 config :: Config
 config = defaultConfig { font = "xft:FiraCode Nerd Font Mono-9"
@@ -83,5 +72,5 @@ main = sequence_ [ startTrayer
 
 startTrayer :: MonadIO m => m ()
 startTrayer = do
-    home <- liftIO envHome
-    spawn $ home ++ "/.config/xmobar/scripts/trayer.sh"
+    h <- liftIO $ home Env.vars
+    spawn $ h ++ "/.config/xmobar/scripts/trayer.sh"

@@ -11,6 +11,7 @@ description:         Xmobar config.
 dependencies:
 - base >= 4.7 && < 5
 - unix
+- env
 
 library:
   source-dirs: src
