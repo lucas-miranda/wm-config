@@ -100,8 +100,9 @@ spawnBrowser = safeSpawnIO envBrowser []
 
 xmobarPath :: MonadIO m => m String
 xmobarPath = do
-    home <- liftIO envHome
-    return $ home ++ "/.config/xmobar/xmobar"
+    --home <- liftIO envHome
+    --return $ home ++ "/.config/xmobar/xmobar"
+    return "xmobar-top"
 
 sb :: StatusBarConfig
 sb = def { sbLogHook = xmonadPropLog' xmonadDefProp =<< dynamicLogString =<< def

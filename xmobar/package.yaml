@@ -1,0 +1,28 @@
+name:                xmobar-config
+version:             0.1.0.0
+github:              "lucas-miranda/wm-config"
+author:              "Lucas A Miranda"
+
+extra-source-files:
+- README.md
+
+description:         Xmobar config.
+
+dependencies:
+- base >= 4.7 && < 5
+- unix
+
+library:
+  source-dirs: src
+
+executables:
+  xmobar-top:
+    main:                Top.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - xmobar
+    - xmobar-config
