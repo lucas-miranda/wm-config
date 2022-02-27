@@ -116,16 +116,16 @@ baseConfig :: XConfig (ModifiedLayout AvoidStruts (Choose Tall (Choose (Mirror T
 baseConfig = desktopConfig
     { terminal    = "kitty"
     , modMask     = mod4Mask
-    , XMonad.borderWidth = 1
-    , normalBorderColor = "#6B6B6B"
-    , focusedBorderColor = "#B152FF"
+    , borderWidth = 0
+    --, normalBorderColor = "#6B6B6B"
+    --, focusedBorderColor = "#B152FF"
     }
 
 main :: IO ()
 main = do
     --dirs <- getDirectories
     --xmonad . ewmh . docks $ (baseConfig
-    xmonad . withSB sb . ewmhFullscreen . docks $ (baseConfig
+    xmonad $ withSB sb . ewmhFullscreen . docks $ (baseConfig
         { layoutHook = layoutSpecs
         , manageHook = windowManage
         , startupHook = startup
@@ -184,11 +184,8 @@ keybindings =
 --------------------------------------
 -- Layout Specs
 
-layoutSpecs :: ModifiedLayout
-                 SmartBorder
-                 (ModifiedLayout AvoidStruts (ModifiedLayout WithBorder Full))
-                 Window
-layoutSpecs = smartBorders . avoidStruts $ noBorders Full
+layoutSpecs :: ModifiedLayout AvoidStruts (ModifiedLayout WithBorder Full) Window
+layoutSpecs = avoidStruts $ noBorders Full
 
 --------------------------------------
 -- Window Manage
@@ -198,7 +195,7 @@ windowManage = composeAll [ isFullscreen --> doFullFloat
                           --, className =? "panel" --> hasBorder False
                           --, className =? "trayer" -->
                           , isDialog --> doFloat
-                          , manageDocks
+                          --, manageDocks
                           , manageHook baseConfig
                           ]
 
