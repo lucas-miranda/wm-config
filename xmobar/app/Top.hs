@@ -39,12 +39,37 @@ spawnPID :: MonadIO m => String -> m ProcessID
 spawnPID x = xfork $ executeFile "/bin/sh" False ["-c", x] Nothing
 
 --------------------------------------
+-- Paths
+
+rootPath :: String
+rootPath = "$HOME"
+
+rootPath' :: String
+rootPath' = "/home/luke"
+
+xmobarPath :: String
+xmobarPath = rootPath ++ "/.config/xmobar"
+
+xmobarPath' :: String
+xmobarPath' = rootPath' ++ "/.config/xmobar"
+
+scriptsPath :: String
+scriptsPath = xmobarPath ++ "/scripts"
+
+scriptsPath' :: String
+scriptsPath' = xmobarPath' ++ "/scripts"
+
+--------------------------------------
 
 config :: Config
 config = defaultConfig { font = "xft:FiraCode Nerd Font Mono-9"
                        , bgColor = "#333438"
-                       --, bgColor = "#FF0038"
+                     --, bgColor = "#FF0038"
                        , position = Top
+                       , sepChar = "%"
+                       , alignSep = "}{"
+                       , template = "%XMonadLog% }{ %memory% * %swap%   %dynnetwork%   %date%   %uname%  %traypad%"
+
                        , commands = [ Run $ Date "%a %Y-%m-%d <fc=#8BE9FD>%H:%M</fc>" "date" 10
                                     , Run $ DynNetwork ["-t", "<dev>: <rxvbar> | <txvbar>"] 10
                                     --, Run $ Network "enp7s0" ["-L","0","-H","32",
@@ -55,12 +80,10 @@ config = defaultConfig { font = "xft:FiraCode Nerd Font Mono-9"
                                                   "--normal","green","--high","red"] 10
                                     , Run $ Memory ["-t","Mem: <usedratio>%"] 10
                                     , Run $ Swap [] 10
-                                    , Run $ Com "uname" ["-s","-r"] "" 36000
+                                    , Run $ Com "uname" ["-n"] "" 36000
+                                    , Run $ Com (scriptsPath' ++ "/padding-icon.sh") ["panel"] "traypad" 10
                                     , Run   XMonadLog
                                     ]
-                       , sepChar = "%"
-                       , alignSep = "}{"
-                       , template = "%XMonadLog% }{ %memory% * %swap% | %dynnetwork% | %date% | %uname%"
                        }
 
 main :: IO ()
@@ -71,6 +94,4 @@ main = sequence_ [ startTrayer
 --------------------------------------
 
 startTrayer :: MonadIO m => m ()
-startTrayer = do
-    h <- liftIO $ home Env.vars
-    spawn $ h ++ "/.config/xmobar/scripts/trayer.sh"
+startTrayer = spawn $ scriptsPath ++ "/trayer.sh"

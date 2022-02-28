@@ -7,7 +7,7 @@ then
 fi
 
 # wait a little to ensure everything (at xmonad) is ready
-sleep 1
+sleep 3
 
 # start trayer
 trayer \
