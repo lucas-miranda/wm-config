@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "xmobar-config:lib"
+
+    - path: "./app/Top.hs"
+      component: "xmobar-config:exe:xmobar-top"
+
+    - path: "../env/src"
+      component: "env:lib"
+
+    - path: "xmobar-git/src"
+      component: "xmobar:lib"
