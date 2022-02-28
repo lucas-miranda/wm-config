@@ -31,3 +31,6 @@ xmobar/xmobar
 # xmonad
 xmonad/xmonad/
 xmonad/xmonad-contrib/
+
+# vim Obsession
+Session.vim
