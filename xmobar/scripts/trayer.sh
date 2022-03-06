@@ -16,8 +16,14 @@ trayer \
     --SetDockType true \
     --SetPartialStrut true \
     --expand true \
-    --height 20 \
+    --distancefrom top \
+    --distance 1 \
     --widthtype request \
+    --height 16 \
     --monitor 0 \
     --margin 0 \
+    --transparent true \
+    --alpha 0 \
+    --tint $1 \
     &
+

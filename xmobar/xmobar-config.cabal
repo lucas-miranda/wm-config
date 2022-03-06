@@ -21,8 +21,11 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Section
+      SectionDivider
+      SectionGroup
   other-modules:
+      Lib
       Paths_xmobar_config
   hs-source-dirs:
       src

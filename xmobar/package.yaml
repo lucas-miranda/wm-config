@@ -15,6 +15,10 @@ dependencies:
 
 library:
   source-dirs: src
+  exposed-modules:
+    - Section
+    - SectionDivider
+    - SectionGroup
 
 executables:
   xmobar-top:

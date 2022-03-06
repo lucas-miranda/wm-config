@@ -8,6 +8,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.StatusBar
+import XMonad.Hooks.StatusBar.PP()
 import XMonad.Layout.LayoutModifier
 import XMonad.Layout.NoBorders
 import qualified XMonad.StackSet as W
@@ -78,25 +79,16 @@ spawnBrowser = safeSpawnIO envBrowser []
 
 --ppConfig = def { ppCurrent = xmobarColor "black" "white" }
 --
---ppConfig :: PP
---ppConfig = def { ppCurrent          = wrap "[" "]"
-               --, ppVisible          = wrap "<" ">"
-               --, ppHidden           = id
-               --, ppHiddenNoWindows  = const ""
-               --, ppVisibleNoWindows = Nothing
-               --, ppUrgent           = id
-               --, ppRename           = pure
-               --, ppSep              = " : "
-               --, ppWsSep            = " "
-               --, ppTitle            = shorten 80
-               --, ppTitleSanitize    = xmobarStrip . dzenEscape
-               --, ppLayout           = id
-               --, ppOrder            = id
-               --, ppOutput           = putStrLn
-               ----, ppSort             = getSortByIndex
-               --, ppExtras           = []
-               ----, ppPrinters         = empty
-               --}
+ppConfig :: PP
+ppConfig = def { ppCurrent = around "#46474F" "#303030" "\57532"
+                                . xmobarColor "#C393D8" "#46474F"
+               , ppTitle = shorten 100
+               , ppSep = "  "
+               , ppWsSep = " "
+               , ppLayout = around "#46474F" "#303030" "\57532"
+                                . xmobarColor "#C393D8" "#46474F"
+                                . wrap " " " "
+               }
 
 xmobarPath :: MonadIO m => m String
 xmobarPath = do
@@ -105,10 +97,20 @@ xmobarPath = do
     return "xmobar-top"
 
 sb :: StatusBarConfig
-sb = def { sbLogHook = xmonadPropLog' xmonadDefProp =<< dynamicLogString =<< def
+sb = def { sbLogHook = logging
          , sbStartupHook = xmobarPath >>= spawnStatusBar
          , sbCleanupHook = xmobarPath >>= killStatusBar
          }
+
+divider :: String -> String -> String -> String
+divider = xmobarColor
+--divider fromColor toColor = xmobarColor fromColor toColor
+
+around :: String -> String -> String -> String -> String
+around bgColorA bgColorB symbol t = concat [ divider bgColorB bgColorA symbol
+                                           , t
+                                           , divider bgColorA bgColorB symbol
+                                           ]
 
 --------------------------------------
 
@@ -200,6 +202,13 @@ windowManage = composeAll [ isFullscreen --> doFullFloat
                           ]
 
 --------------------------------------
+-- Logging
+
+logging :: X ()
+logging = do
+    xmonadPropLog' xmonadDefProp =<< dynamicLogString ppConfig -- =<< def
+
+--------------------------------------
 -- Startup
 
 startup :: X ()
@@ -221,7 +230,3 @@ startup = do
     --spawnStatusBar (home ++ "/.config/xmobar/xmobar")
 
     adjustEventInput
-
-logging :: X ()
-logging = do
-    xmonadPropLog' xmonadDefProp =<< dynamicLogString =<< def
