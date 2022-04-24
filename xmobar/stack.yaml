@@ -5,6 +5,7 @@ packages:
 - .
 - xmobar-git
 - ../env
+- ../style
 
 flags:
   xmobar:

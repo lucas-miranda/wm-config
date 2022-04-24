@@ -1,0 +1,23 @@
+name:                style
+version:             0.1.0.0
+github:              "lucas-miranda/wm-config"
+author:              "Lucas A Miranda"
+
+extra-source-files:
+- README.md
+
+description:         Please see the README on GitHub at <https://github.com/githubuser/style#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- mtl
+- transformers
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - Style
+    - Style.Face
+    - Style.Section
+    - Style.Section.Divider
+    - Style.Section.Group

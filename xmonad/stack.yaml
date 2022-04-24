@@ -4,3 +4,4 @@ resolver:
 packages:
 - xmonad
 - xmonad-contrib
+- ../style

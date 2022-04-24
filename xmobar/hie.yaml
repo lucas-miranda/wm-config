@@ -9,5 +9,8 @@ cradle:
     - path: "../env/src"
       component: "env:lib"
 
+    - path: "../style/src"
+      component: "style:lib"
+
     - path: "xmobar-git/src"
       component: "xmobar:lib"

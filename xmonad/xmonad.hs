@@ -79,6 +79,16 @@ spawnBrowser = safeSpawnIO envBrowser []
 
 --ppConfig = def { ppCurrent = xmobarColor "black" "white" }
 --
+
+styleConfig = {
+              }
+
+--singleSection "#46474F" "#303030" "\57532"
+--  . color "#C393D8" "#46474F"
+
+singleSection styleConfig "\57532"
+    . singleSection colorFg "#C393D8"
+
 ppConfig :: PP
 ppConfig = def { ppCurrent = around "#46474F" "#303030" "\57532"
                                 . xmobarColor "#C393D8" "#46474F"

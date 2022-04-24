@@ -1,10 +1,7 @@
 name:                env
 version:             0.1.0.0
-github:              "githubuser/env"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2022 Author name here"
+github:              "lucas-miranda/wm-config"
+author:              "Lucas A Miranda"
 
 extra-source-files:
 - README.md

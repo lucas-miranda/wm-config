@@ -12,13 +12,10 @@ dependencies:
 - base >= 4.7 && < 5
 - unix
 - env
+- style
 
 library:
   source-dirs: src
-  exposed-modules:
-    - Section
-    - SectionDivider
-    - SectionGroup
 
 executables:
   xmobar-top:

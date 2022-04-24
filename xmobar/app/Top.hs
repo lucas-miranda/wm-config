@@ -4,9 +4,9 @@ import Control.Monad.IO.Class
 import Data.Maybe
 import Env;
 import Numeric;
-import Section;
-import SectionDivider;
-import SectionGroup;
+import Style;
+import Style.Section (sections)
+import Style.Section.Divider
 import System.Environment
 import System.IO
 import System.Info
@@ -16,7 +16,6 @@ import System.Posix.Process (executeFile, forkProcess, getAnyProcessStatus, crea
 import System.Posix.Signals
 import System.Posix.Types (ProcessID)
 import Xmobar
-import SectionGroup (SectionGroupConfig(SectionGroupConfig))
 
 --------------------------------------
 
@@ -79,8 +78,7 @@ config = defaultConfig { font = "xft:FiraCode Nerd Font Mono-9"
                        , overrideRedirect = True
                        , sepChar = "%"
                        , alignSep = "}{"
-                       --, template = "%XMonadLog% }{ <fc=#B8B8B9,#46474f>%memory% * %swap%   %dynnetwork%   %datetime%  <fc=#C393D8,#46474f>%uname%</fc> </fc><fc=#333438,#46474f>\57534</fc><fc=#333438,#333438> %traypad%</fc>"
-                       , template = " %XMonadLog% }{ " ++ generateTemplate
+                       , template = " %XMonadLog% }{ " ++ rightBarTemplate
 
                        , commands = [ Run $ DateZone "\61463 <fc=#C393D8>%H:%M</fc> %a, %d de %B de %Y" "pt_BR.UTF-8" "America/Sao_Paulo" "datetime" 10
                                     , Run $ DynNetwork ["-t", "<fc=#61636B><dev></fc> <rxvbar><txvbar>"
@@ -112,30 +110,25 @@ main = sequence_ [ startTrayer
 
 --------------------------------------
 
-sectionGroupConfig :: SectionGroupConfig
-sectionGroupConfig = SectionGroupConfig
-    { anchor = AtRight
-    , dividerConfig = DividerConfig { symbol = "\57534"
-                                    , spacesAtLeft = 1
-                                    , spacesAtRight = 1
-                                    }
-    , sectionA = SectionConfig { foregroundColor = "#B8B8B9"
-                               , backgroundColor = "#303030"
-                               }
-    , sectionB = SectionConfig { foregroundColor = "#B8B8B9"
-                               , backgroundColor = "#46474F"
-                               }
-    }
+rightBarTemplate :: String
+rightBarTemplate = processApplyStyle'
+    rightSideBarStyle
+    (sections [ "%memory%  %swap%"
+              , "%dynnetwork%"
+              , "%alsa:default:Master%"
+              , "%datetime%"
+              , "%uname%"
+              , "%traypad%"
+              ])
 
-generateTemplate :: String
-generateTemplate = SectionGroup.simple sectionGroupConfig
-    [ "%memory%  %swap%"
-    , "%dynnetwork%"
-    , "%alsa:default:Master%"
-    , "%datetime%"
-    , "%uname%"
-    , "%traypad%"
-    ]
+rightSideBarStyleColors :: StyleConfig -> StyleConfig
+rightSideBarStyleColors = defaultStyleColors
+
+rightSideBarStyle :: StyleConfig
+rightSideBarStyle = withAlternateColorSections . rightSideBarStyleColors
+    $ def { dividerConfig = defDetailed { symbol = "\57534" }
+          , handleSections = pure ()
+          }
 
 startTrayer :: MonadIO m => m ()
 startTrayer = spawn $ unwords
@@ -143,7 +136,8 @@ startTrayer = spawn $ unwords
     , "0x" ++ tintColor
     ] where
         tintColor = definedColor
-        definedColor = drop 1 (backgroundColor $ sectionA sectionGroupConfig)
+        definedColor = drop 1 $ head $ styleBgColors rightSideBarStyle
+        --definedColor = drop 1 (backgroundColor $ sectionA sectionGroupConfig)
         --invertColor c = (showHex $ fromHex "FFFFFF" - fromHex c) ""
         --fromHex h = fst $ head $ readHex h
 
