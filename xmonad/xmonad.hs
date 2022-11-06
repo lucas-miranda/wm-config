@@ -1,4 +1,5 @@
 import Data.Maybe
+import Data.Monoid
 import System.Environment
 import XMonad
 import XMonad.Actions.UpdateFocus
@@ -43,7 +44,7 @@ recompile = do
 restart :: X ()
 restart = do
     dirs <- liftIO getDirectories
-    sequence_ [ spawn "notify-send XMonad Restarting..."
+    sequence_ [ spawn "notify-send XMonad \"Restarting...\""
               --, killAllStatusBars
               --, spawnStatusBar "xmobar"
               , XMonad.restart (cacheDir dirs ++ "/xmonad-x86_64-linux") True
@@ -52,8 +53,8 @@ restart = do
 -- Recompile Restart
 recompileRestart :: X ()
 recompileRestart = do
-    whenX Main.recompile (sequence_ [ spawn "notify-send XMonad Recompiled Successfully!", Main.restart ])
-    spawn "notify-send XMonad Failed to Recompile"
+    whenX Main.recompile (sequence_ [ Main.restart, spawn "notify-send XMonad \"Recompiled Successfully!\"" ])
+    spawn "notify-send XMonad \"Failed to Recompile\""
     def
 
 --------------------------------------
@@ -80,14 +81,15 @@ spawnBrowser = safeSpawnIO envBrowser []
 --ppConfig = def { ppCurrent = xmobarColor "black" "white" }
 --
 
-styleConfig = {
-              }
+--styleConfig = {
+--              }
 
 --singleSection "#46474F" "#303030" "\57532"
 --  . color "#C393D8" "#46474F"
 
-singleSection styleConfig "\57532"
-    . singleSection colorFg "#C393D8"
+--singleSection styleConfig "\57532"
+--    . singleSection colorFg "#C393D8"
+
 
 ppConfig :: PP
 ppConfig = def { ppCurrent = around "#46474F" "#303030" "\57532"
@@ -126,9 +128,10 @@ around bgColorA bgColorB symbol t = concat [ divider bgColorB bgColorA symbol
 
 baseConfig :: XConfig (ModifiedLayout AvoidStruts (Choose Tall (Choose (Mirror Tall) Full)))
 baseConfig = desktopConfig
-    { terminal    = "kitty"
-    , modMask     = mod4Mask
-    , borderWidth = 0
+    { terminal          = "kitty"
+    , modMask           = mod4Mask
+    , borderWidth       = 0
+    , handleEventHook   = handleEvents
     --, normalBorderColor = "#6B6B6B"
     --, focusedBorderColor = "#B152FF"
     }
@@ -217,6 +220,20 @@ windowManage = composeAll [ isFullscreen --> doFullFloat
 logging :: X ()
 logging = do
     xmonadPropLog' xmonadDefProp =<< dynamicLogString ppConfig -- =<< def
+
+--------------------------------------
+-- Handle Event Hook
+
+runIfClassName :: Monoid a => Window -> String -> X a -> X a
+runIfClassName w name action = runQuery (className =? name --> liftX action) w
+
+handleEventStremio :: Event -> X ()
+handleEventStremio MapRequestEvent {ev_window = w} = runIfClassName w "Stremio" (spawn $ "xdg-screensaver suspend " ++ show w)
+handleEventStremio UnmapEvent {ev_window = w} = runIfClassName w "Stremio" (spawn $ "xdg-screensaver resume " ++ show w)
+handleEventStremio _ = pure ()
+
+handleEvents :: Event -> X All
+handleEvents e = handleEventStremio e >> return (All True)
 
 --------------------------------------
 -- Startup
