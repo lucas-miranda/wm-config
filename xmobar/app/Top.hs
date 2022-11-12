@@ -92,7 +92,7 @@ config = defaultConfig { font = "xft:FiraCode Nerd Font Mono-9"
                                     , Run $ Swap [] 10
                                     , Run $ Com "uname" ["-n"] "" 36000
                                     , Run $ Com (scriptsPath' ++ "/padding-icon.sh") ["panel"] "traypad" 10
-                                    , Run $ Alsa "default" "Master" [ "-t", "<status> <volume>% <volumevbar>"
+                                    , Run $ Alsa "default" "Master" [ "-t", actionVolumeControl "<status> <volume>% <volumevbar>"
                                                                     --, "--lowd", "-78.0", "--highd", "-2.87"
                                                                     , "--"
                                                                     , "-H", "90", "-L", "5"
@@ -130,6 +130,8 @@ rightSideBarStyle = withAlternateColorSections . rightSideBarStyleColors
           , handleSections = pure ()
           }
 
+--------------------------------------
+
 startTrayer :: MonadIO m => m ()
 startTrayer = spawn $ unwords
     [ scriptsPath ++ "/trayer.sh"
@@ -141,3 +143,18 @@ startTrayer = spawn $ unwords
         --invertColor c = (showHex $ fromHex "FFFFFF" - fromHex c) ""
         --fromHex h = fst $ head $ readHex h
 
+--------------------------------------
+
+action :: String -> String -> String -> String
+action cmd btn contents = "<action=`" ++ cmd ++ "` button=" ++ btn ++ ">" ++ contents ++ "</action>"
+
+--------------------------------------
+
+actionVolumeUp :: String -> String
+actionVolumeUp = action "xdotool key XF86AudioRaiseVolume" "4"
+
+actionVolumeDown :: String -> String
+actionVolumeDown = action "xdotool key XF86AudioLowerVolume" "5"
+
+actionVolumeControl :: String -> String
+actionVolumeControl contents = actionVolumeUp $ actionVolumeDown contents
