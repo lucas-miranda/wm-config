@@ -10,8 +10,13 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP()
+import XMonad.Hooks.DynamicProperty
 import XMonad.Layout.LayoutModifier
 import XMonad.Layout.NoBorders
+import XMonad.Layout.PerWorkspace
+import XMonad.Layout.Simplest
+import XMonad.Layout.Dishes
+import XMonad.Layout.Spacing
 import qualified XMonad.StackSet as W
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
@@ -125,28 +130,29 @@ around bgColorA bgColorB symbol t = concat [ divider bgColorB bgColorA symbol
                                            ]
 
 --------------------------------------
+-- Workspaces
+workspaceId :: Int -> String
+workspaceId index = workspaces baseConfig !! index
+
+--------------------------------------
 
 baseConfig :: XConfig (ModifiedLayout AvoidStruts (Choose Tall (Choose (Mirror Tall) Full)))
 baseConfig = desktopConfig
     { terminal          = "kitty"
     , modMask           = mod4Mask
     , borderWidth       = 0
-    , handleEventHook   = handleEvents
-    --, normalBorderColor = "#6B6B6B"
-    --, focusedBorderColor = "#B152FF"
+    , handleEventHook   = dynamicTitle handleEventsWithDynamicTitle <+> handleEvents
+    , workspaces        = map show [1..9 :: Int]
     }
 
 main :: IO ()
 main = do
-    --dirs <- getDirectories
-    --xmonad . ewmh . docks $ (baseConfig
     xmonad $ withSB sb . ewmhFullscreen . docks $ (baseConfig
         { layoutHook = layoutSpecs
-        , manageHook = windowManage
+        , manageHook = windowManage <+> manageHook baseConfig
         , startupHook = startup
         , logHook = logging
-        } `additionalKeysP` keybindings) --)
-        --dirs
+        } `additionalKeysP` keybindings)
 
 --------------------------------------
 -- Keybindings
@@ -165,9 +171,12 @@ keybindings =
     , ("M-k", windows W.focusUp)
     , ("S-M-j", windows W.swapDown)
     , ("S-M-k", windows W.swapUp)
+    , ("M-l", sendMessage NextLayout)
+    , ("M-w m", sendMessage Expand)
+    , ("M-w n", sendMessage Shrink)
 
     -- floating layer
-    , ("M-w", withFocused $ windows . W.sink) -- send it back to tiling
+    , ("M-w f", withFocused $ windows . W.sink) -- send it back to tiling
 
     -- common programs
     , ("M-t", spawn $ terminal baseConfig)
@@ -199,8 +208,12 @@ keybindings =
 --------------------------------------
 -- Layout Specs
 
-layoutSpecs :: ModifiedLayout AvoidStruts (ModifiedLayout WithBorder Full) Window
-layoutSpecs = avoidStruts $ noBorders Full
+--layoutSpecs :: ModifiedLayout AvoidStruts (ModifiedLayout WithBorder Full) Window
+layoutSpecs = avoidStruts $ -- don't cover status bar
+              noBorders $ -- never show borders
+              spacingWithEdge 2 $ -- edge spacing
+              onWorkspaces (map workspaceId [0, 1]) (Tall 1 (3/100) (4/5) ||| Dishes 1 (1/10) ||| Simplest) $ -- work related workspaces
+              Tall 1 (3/100) (4/5) ||| Simplest -- others workspaces
 
 --------------------------------------
 -- Window Manage
@@ -211,7 +224,8 @@ windowManage = composeAll [ isFullscreen --> doFullFloat
                           --, className =? "trayer" -->
                           , isDialog --> doFloat
                           --, manageDocks
-                          , manageHook baseConfig
+                          --, className =? "Spotify" --> doShift (workspaceId 4)
+                          --, dynamicPropertyChange "WM_NAME" ()
                           ]
 
 --------------------------------------
@@ -227,13 +241,18 @@ logging = do
 runIfClassName :: Monoid a => Window -> String -> X a -> X a
 runIfClassName w name action = runQuery (className =? name --> liftX action) w
 
+-- ensure stremio will suspend screensaver
 handleEventStremio :: Event -> X ()
 handleEventStremio MapRequestEvent {ev_window = w} = runIfClassName w "Stremio" (spawn $ "xdg-screensaver suspend " ++ show w)
 handleEventStremio UnmapEvent {ev_window = w} = runIfClassName w "Stremio" (spawn $ "xdg-screensaver resume " ++ show w)
 handleEventStremio _ = pure ()
 
+handleEventsWithDynamicTitle :: Query (Endo WindowSet)
+handleEventsWithDynamicTitle = composeAll [ title =? "Spotify" --> doShift (workspaceId 4) -- send spotify to workspace 4
+                                            ]
 handleEvents :: Event -> X All
-handleEvents e = handleEventStremio e >> return (All True)
+handleEvents e = composeAll [ handleEventStremio e
+                            ] >> return (All True)
 
 --------------------------------------
 -- Startup
